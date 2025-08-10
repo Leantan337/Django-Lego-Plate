@@ -20,10 +20,14 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     # Bricks
     "corsheaders",
     "rest_framework",
     "drf_spectacular",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
 ]
 
 MIDDLEWARE = [
@@ -34,6 +38,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -76,6 +81,18 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
+
+# Auth / allauth
+SITE_ID = int(os.environ.get("SITE_ID", 1))
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "allauth.account.auth_backends.AuthenticationBackend",
+]
+ACCOUNT_LOGIN_METHODS = {'username', 'email'}  # Modern allauth syntax
+ACCOUNT_EMAIL_VERIFICATION = "none"
+ACCOUNT_SIGNUP_FIELDS = ['email', 'username*', 'password1*', 'password2*']  # Modern allauth syntax
+LOGIN_REDIRECT_URL = "/api/docs/"  # Redirect to API docs after login
+LOGOUT_REDIRECT_URL = "/api/docs/"  # Redirect to API docs after logout
 
 
 # Internationalization

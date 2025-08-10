@@ -27,6 +27,16 @@
         {"file": "pytest.ini", "type": "create"},
         {"file": "tests/test_smoke.py", "type": "create"}
       ]
+    },
+    {
+      "brick": "auth-allauth",
+      "source": "internal",
+      "timestamp": "2025-08-10T00:00:00Z",
+      "actions": [
+        {"file": "requirements.txt", "type": "update"},
+        {"file": "config/settings.py", "type": "update"},
+        {"file": "config/urls.py", "type": "update"}
+      ]
     }
   ]
 }
