@@ -29,7 +29,8 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
 
-    "blog",]
+    "blog",
+    "polls",]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

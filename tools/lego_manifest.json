@@ -138,15 +138,42 @@
       "source": "internal",
       "timestamp": "2025-08-10T00:00:00Z",
       "actions": [
-        {"file": "config/settings.py", "type": "update"},
-        {"file": "config/views.py", "type": "create"},
-        {"file": "config/urls.py", "type": "update"},
-        {"file": "templates/base.html", "type": "create"},
-        {"file": "templates/home.html", "type": "create"},
-        {"file": "templates/bricks.html", "type": "create"},
-        {"file": "templates/system.html", "type": "create"},
-        {"file": "templates/demo.html", "type": "create"},
-        {"file": "tools/available_bricks.json", "type": "create"}
+        {
+          "file": "config/settings.py",
+          "type": "update"
+        },
+        {
+          "file": "config/views.py",
+          "type": "create"
+        },
+        {
+          "file": "config/urls.py",
+          "type": "update"
+        },
+        {
+          "file": "templates/base.html",
+          "type": "create"
+        },
+        {
+          "file": "templates/home.html",
+          "type": "create"
+        },
+        {
+          "file": "templates/bricks.html",
+          "type": "create"
+        },
+        {
+          "file": "templates/system.html",
+          "type": "create"
+        },
+        {
+          "file": "templates/demo.html",
+          "type": "create"
+        },
+        {
+          "file": "tools/available_bricks.json",
+          "type": "create"
+        }
       ]
     },
     {
@@ -154,6 +181,25 @@
       "source": "bricks\\blog",
       "timestamp": "2025-08-10T17:08:01.947996Z",
       "actions": []
+    },
+    {
+      "brick": "polls-demo",
+      "source": "C:\\Users\\alula\\Documents\\work\\cursor\\Django-Lego-Plate\\bricks\\demo_polls",
+      "timestamp": "2025-08-10T18:11:37.961335Z",
+      "actions": [
+        {
+          "file": "polls",
+          "type": "create_dir"
+        },
+        {
+          "file": "config/settings.py",
+          "type": "add:INSTALLED_APPS:polls"
+        },
+        {
+          "file": "config/urls.py",
+          "type": "url:polls/->polls.urls"
+        }
+      ]
     }
   ]
 }

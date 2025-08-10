@@ -16,9 +16,11 @@ urlpatterns = [
     # Landing & UI pages
     path("", views.home, name="home"),
     path("bricks/", views.bricks_catalog, name="bricks-catalog"),
+    path("bricks/import/", views.import_brick, name="import-brick"),
     path("system/", views.system_status, name="system-status"),
     path("demo/", views.demo, name="demo"),
     path("blog/", include("blog.urls")),
+    path("polls/", include("polls.urls")),
 # OpenAPI schema and docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),

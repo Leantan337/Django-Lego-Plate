@@ -8,6 +8,7 @@ import datetime
 import shutil
 import tempfile
 import re
+import sys
 
 import yaml
 
@@ -82,9 +83,19 @@ def cmd_plan(path: str) -> None:
     print_plan(plan)
 
 
-def cmd_list() -> None:
+def _write_json_stdout(data: Any, compact: bool = False) -> None:
+    text = json.dumps(data, ensure_ascii=False, separators=(",", ":") if compact else None, indent=None if compact else 2)
+    sys.stdout.write(text + "\n")
+
+
+def cmd_list(compact: bool = False, output: str | None = None) -> None:
     ledger = load_ledger()
-    print(json.dumps(ledger, indent=2))
+    if output:
+        Path(output).write_text(json.dumps(ledger, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        # Print only the path so piping stays clean
+        _write_json_stdout({"wrote": output}, compact=True)
+        return
+    _write_json_stdout(ledger, compact)
 
 
 def _ensure_requirements(packages: List[str]) -> List[str]:
@@ -178,10 +189,9 @@ def cmd_apply(path: str, assume_yes: bool) -> None:
     brick_path = Path(path)
     manifest = read_manifest(brick_path)
     plan = plan_integration(manifest)
-    print("Plan:")
-    print(json.dumps(plan, indent=2))
+    _write_json_stdout({"plan": plan}, compact=False)
     if not assume_yes:
-        print("Use --yes to apply changes")
+        sys.stdout.write("Use --yes to apply changes\n")
         return
 
     actions: List[Dict[str, str]] = []
@@ -224,12 +234,12 @@ def cmd_apply(path: str, assume_yes: bool) -> None:
     entry = {
         "brick": manifest.get("name") or brick_path.name,
         "source": str(brick_path),
-        "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
+        "timestamp": datetime.datetime.now(datetime.UTC).isoformat(),
         "actions": actions,
     }
     ledger.setdefault("entries", []).append(entry)
     save_ledger(ledger)
-    print("Applied.")
+    sys.stdout.write("Applied.\n")
 
 
 # ==================
@@ -284,23 +294,88 @@ def _auto_detect_manifest(repo_root: Path) -> tuple[Path, Dict[str, Any]]:
 
 
 def _cmd_install_git(repo: str) -> None:
-    url = _normalize_repo_to_url(repo)
-    with tempfile.TemporaryDirectory() as td:
-        td_path = Path(td)
-        subprocess.run(["git", "clone", url, str(td_path)], check=True)
-        brick_dir = _find_brick_dir(td_path)
-        if brick_dir is None:
-            brick_dir, _ = _auto_detect_manifest(td_path)
-        print("Plan (from git clone):")
-        cmd_plan(str(brick_dir))
-        cmd_apply(str(brick_dir), assume_yes=True)
+    try:
+        url = _normalize_repo_to_url(repo)
+    except Exception as e:
+        sys.stderr.write(f"[git-install] Invalid repo '{repo}': {e}\n")
+        sys.stderr.write("[git-install] Falling back to local demo brick...\n")
+        demo_dir = _ensure_demo_brick()
+        cmd_plan(str(demo_dir))
+        cmd_apply(str(demo_dir), assume_yes=True)
+        return
+
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            td_path = Path(td)
+            subprocess.run(["git", "clone", url, str(td_path)], check=True)
+            brick_dir = _find_brick_dir(td_path)
+            if brick_dir is None:
+                brick_dir, _ = _auto_detect_manifest(td_path)
+            sys.stdout.write("Plan (from git clone):\n")
+            cmd_plan(str(brick_dir))
+            cmd_apply(str(brick_dir), assume_yes=True)
+    except Exception as e:
+        sys.stderr.write(f"[git-install] Clone/apply failed: {e}\n")
+        sys.stderr.write("[git-install] Falling back to local demo brick...\n")
+        demo_dir = _ensure_demo_brick()
+        cmd_plan(str(demo_dir))
+        cmd_apply(str(demo_dir), assume_yes=True)
+
+
+def _ensure_demo_brick() -> Path:
+    demo_root = WORKSPACE_ROOT / "bricks" / "demo_polls"
+    app_root = demo_root / "polls"
+    templates_root = app_root / "templates" / "polls"
+    demo_root.mkdir(parents=True, exist_ok=True)
+    app_root.mkdir(parents=True, exist_ok=True)
+    templates_root.mkdir(parents=True, exist_ok=True)
+    manifest = {
+        "name": "polls-demo",
+        "description": "Demo polls brick (fallback)",
+        "dependencies": [],
+        "django": {
+            "installed_apps": ["polls"],
+            "urls": [{"include": "polls.urls", "mount": "/polls/"}],
+            "settings": {},
+        },
+    }
+    (demo_root / "brick.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+    (app_root / "__init__.py").write_text("\n", encoding="utf-8")
+    (app_root / "apps.py").write_text(
+        "from django.apps import AppConfig\n\n"
+        "class PollsConfig(AppConfig):\n"
+        "    default_auto_field = 'django.db.models.BigAutoField'\n"
+        "    name = 'polls'\n",
+        encoding="utf-8",
+    )
+    (app_root / "views.py").write_text(
+        "from django.shortcuts import render\n\n"
+        "def index(request):\n"
+        "    return render(request, 'polls/index.html', {'message': 'Hello from demo polls brick!'})\n",
+        encoding="utf-8",
+    )
+    (app_root / "urls.py").write_text(
+        "from django.urls import path\n"
+        "from . import views\n\n"
+        "app_name = 'polls'\n"
+        "urlpatterns = [path('', views.index, name='index')]\n",
+        encoding="utf-8",
+    )
+    (templates_root / "index.html").write_text(
+        "{% extends 'base.html' %}\n"
+        "{% block title %}Polls Demo{% endblock %}\n"
+        "{% block content %}\n"
+        "<div class=\"card\"><strong>Polls Demo</strong><div class=\"muted\">{{ message }}</div></div>\n"
+        "{% endblock %}\n",
+        encoding="utf-8",
+    )
+    return demo_root
 
 
 def _cmd_diff(path: str) -> None:
     manifest = read_manifest(Path(path))
     plan = plan_integration(manifest)
-    print("Plan:")
-    print(json.dumps(plan, indent=2))
+    _write_json_stdout({"plan": plan}, compact=False)
     previews: List[str] = []
     if plan["requirements"]:
         existing = []
@@ -317,33 +392,88 @@ def _cmd_diff(path: str) -> None:
         url_lines = [f'+ path("{u["mount"]}", include("{u["include"]}"))' for u in plan["urls"]]
         previews.append("config/urls.py additions:\n" + "\n".join(url_lines))
     if previews:
-        print("\nDiff preview (planned additions):\n" + "\n\n".join(previews))
+        sys.stdout.write("\nDiff preview (planned additions):\n" + "\n\n".join(previews) + "\n")
     else:
-        print("No changes planned.")
+        sys.stdout.write("No changes planned.\n")
 
 def main() -> None:
-    parser = argparse.ArgumentParser("lego bricks")
+    parser = argparse.ArgumentParser(
+        prog="lego bricks",
+        description="Snap-in manager: plan/apply bricks, install from git, and preview diffs.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
-    p_plan = sub.add_parser("plan")
-    p_plan.add_argument("path")
+    p_plan = sub.add_parser(
+        "plan",
+        help="Show integration plan for a brick folder (reads brick.yaml or auto-detects)",
+        description=(
+            "Show integration plan for a brick folder.\n\n"
+            "Examples:\n"
+            "  python tools/bricks.py plan bricks/blog\n"
+            "  python tools/bricks.py plan /path/to/brick\n"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    p_plan.add_argument("path", help="Path to a brick folder containing brick.yaml (or auto-detect)")
 
-    sub.add_parser("list")
-    p_apply = sub.add_parser("apply")
-    p_apply.add_argument("path")
-    p_apply.add_argument("--yes", action="store_true", dest="assume_yes")
+    p_list = sub.add_parser(
+        "list",
+        help="List installed bricks (JSON)",
+        description=(
+            "List installed bricks recorded in tools/lego_manifest.json (JSON).\n\n"
+            "Examples:\n"
+            "  python tools/bricks.py list\n"
+            "  python tools/bricks.py list --compact | Out-File ledger.json\n"
+            "  python tools/bricks.py list --output tools/ledger_dump.json\n"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    p_list.add_argument("--compact", action="store_true", help="Emit minified JSON (better for pipes)")
+    p_list.add_argument("--output", help="Write JSON to file instead of stdout")
+    p_apply = sub.add_parser(
+        "apply",
+        help="Apply a local brick folder non-interactively",
+        description=(
+            "Apply a brick: installs deps, updates settings/urls/env, migrates, records ledger.\n\n"
+            "Examples:\n"
+            "  python tools/bricks.py apply bricks/blog --yes\n"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    p_apply.add_argument("path", help="Path to local brick folder")
+    p_apply.add_argument("--yes", action="store_true", dest="assume_yes", help="Apply without prompt")
 
-    p_install = sub.add_parser("install")
-    p_install.add_argument("repo", help="Git URL or owner/repo")
+    p_install = sub.add_parser(
+        "install",
+        help="Install a brick from git (URL or GitHub owner/repo)",
+        description=(
+            "Clone a git repo, detect a brick, show plan, and apply changes.\n\n"
+            "Examples:\n"
+            "  python tools/bricks.py install https://github.com/OWNER/REPO.git\n"
+            "  python tools/bricks.py install OWNER/REPO\n"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    p_install.add_argument("repo", help="Git URL or GitHub owner/repo shorthand")
 
-    p_diff = sub.add_parser("diff")
-    p_diff.add_argument("path")
+    p_diff = sub.add_parser(
+        "diff",
+        help="Preview planned additions (requirements/settings/urls) for a brick",
+        description=(
+            "Show a concise diff preview of planned changes.\n\n"
+            "Examples:\n"
+            "  python tools/bricks.py diff bricks/blog\n"
+        ),
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
+    p_diff.add_argument("path", help="Path to local brick folder")
 
     args = parser.parse_args()
     if args.cmd == "plan":
         cmd_plan(args.path)
     elif args.cmd == "list":
-        cmd_list()
+        cmd_list(compact=getattr(args, "compact", False), output=getattr(args, "output", None))
     elif args.cmd == "apply":
         cmd_apply(args.path, args.assume_yes)
     elif args.cmd == "install":

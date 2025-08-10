@@ -1,0 +1,10 @@
+name: polls-demo
+description: Demo polls brick (fallback)
+dependencies: []
+django:
+  installed_apps:
+  - polls
+  urls:
+  - include: polls.urls
+    mount: /polls/
+  settings: {}

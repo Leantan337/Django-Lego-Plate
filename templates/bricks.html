@@ -3,6 +3,18 @@
 {% block nav_bricks %}active{% endblock %}
 {% block content %}
 <h2 style="margin:8px 0 16px">Bricks Catalog</h2>
+
+<div class="card" style="margin-bottom:16px">
+  <form id="import-form" onsubmit="return importBrick(event)">
+    <label class="muted">GitHub URL or owner/repo, or local path</label>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <input id="brick-source" type="text" placeholder="owner/repo or https://github.com/owner/repo or bricks/blog" style="flex:1;padding:10px;border-radius:8px;border:1px solid #1b2440;background:#0f1526;color:#f5f7fb"/>
+      <button class="btn" type="submit">Import</button>
+    </div>
+    <pre id="import-log" class="muted" style="white-space:pre-wrap;margin-top:8px;display:none"></pre>
+  </form>
+</div>
+
 <div class="grid cols-3">
   {% for b in available %}
   <div class="card">
@@ -13,11 +25,36 @@
     {% if b.status == 'Installed' %}
       <a class="btn" style="background:var(--api)" href="/api/docs/">View</a>
     {% else %}
-      <a class="btn" style="background:var(--accent)" href="#">Install</a>
+      <button class="btn" style="background:var(--accent)" onclick="quickInstall('{{ b.name }}')">Install</button>
     {% endif %}
   </div>
   {% endfor %}
   </div>
+
+<script>
+async function importBrick(e){
+  e.preventDefault();
+  const src = document.getElementById('brick-source').value.trim();
+  const log = document.getElementById('import-log');
+  log.style.display = 'block';
+  log.textContent = 'Installing ' + src + '...';
+  const resp = await fetch('/bricks/import/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: new URLSearchParams({source: src})});
+  const data = await resp.json();
+  if (data.success){
+    log.textContent = 'Success\n' + (data.stdout || '');
+    setTimeout(()=>location.reload(), 1000);
+  } else {
+    log.textContent = 'Error\n' + (data.stderr || data.error || '');
+  }
+  return false;
+}
+function quickInstall(name){
+  // simple mapping: try local brick path first, else GitHub owner/repo same as name
+  const src = name === 'blog' ? 'bricks/blog' : name;
+  document.getElementById('brick-source').value = src;
+  document.getElementById('import-form').dispatchEvent(new Event('submit'));
+}
+</script>
 {% endblock %}
 
 
