@@ -1,12 +1,18 @@
-<!DOCTYPE html>
-<html>
-  <head><title>{{ post.title }}</title></head>
-  <body>
-    <h1>{{ post.title }}</h1>
-    <article>
-      {{ post.content }}
-    </article>
-  </body>
-  </html>
+{% extends "base.html" %}
+{% block title %}{{ post.title }}{% endblock %}
+{% block nav_blog %}active{% endblock %}
+{% block content %}
+<section class="hero" style="grid-template-columns:1fr; padding-top:24px">
+  <div>
+    <h1 class="title" style="font-size:32px">{{ post.title }}</h1>
+    <div class="muted">Published {{ post.created_at|date:"Y-m-d H:i" }}</div>
+  </div>
+</section>
+
+<article class="card">
+  {{ post.content|linebreaks }}
+  <div style="margin-top:12px"><a class="btn" href="/admin/blog/post/{{ post.id }}/change/">Edit in Admin</a></div>
+</article>
+{% endblock %}
 
 

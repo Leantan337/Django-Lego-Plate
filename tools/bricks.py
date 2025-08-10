@@ -6,6 +6,8 @@ from typing import Any, Dict, List, Tuple
 import subprocess
 import datetime
 import shutil
+import tempfile
+import re
 
 import yaml
 
@@ -229,6 +231,96 @@ def cmd_apply(path: str, assume_yes: bool) -> None:
     save_ledger(ledger)
     print("Applied.")
 
+
+# ==================
+# Git install + diff
+# ==================
+
+def _normalize_repo_to_url(repo: str) -> str:
+    if repo.startswith("http://") or repo.startswith("https://") or repo.endswith(".git"):
+        return repo
+    if re.match(r"^[\w.-]+/[\w.-]+$", repo):
+        return f"https://github.com/{repo}.git"
+    raise ValueError("Unrecognized repo format. Use full git URL or owner/repo shorthand.")
+
+
+def _find_brick_dir(root: Path) -> Path | None:
+    for name in ("brick.yaml", "brick.yml", "brick.json"):
+        if (root / name).exists():
+            return root
+    for p in root.rglob("brick.yaml"):
+        return p.parent
+    for p in root.rglob("brick.yml"):
+        return p.parent
+    for p in root.rglob("brick.json"):
+        return p.parent
+    return None
+
+
+def _auto_detect_manifest(repo_root: Path) -> tuple[Path, Dict[str, Any]]:
+    for apps_py in repo_root.rglob("apps.py"):
+        app_dir = apps_py.parent
+        app_name = app_dir.name
+        urls_include = (app_dir / "urls.py").exists()
+        manifest: Dict[str, Any] = {
+            "name": app_name,
+            "dependencies": [],
+            "django": {
+                "installed_apps": [app_name],
+                "middleware": [],
+                "settings": {},
+                "urls": ([{"include": f"{app_name}.urls", "mount": f"/{app_name}/"}] if urls_include else []),
+            },
+        }
+        # include root requirements if present
+        req = repo_root / "requirements.txt"
+        if req.exists():
+            deps = [l.strip() for l in req.read_text(encoding="utf-8").splitlines() if l.strip() and not l.strip().startswith('#')]
+            manifest["dependencies"] = deps[:20]
+        brick_dir = repo_root
+        (brick_dir / "brick.yaml").write_text(yaml.safe_dump(manifest, sort_keys=False), encoding="utf-8")
+        return brick_dir, manifest
+    raise FileNotFoundError("Could not auto-detect a Django app (no apps.py found)")
+
+
+def _cmd_install_git(repo: str) -> None:
+    url = _normalize_repo_to_url(repo)
+    with tempfile.TemporaryDirectory() as td:
+        td_path = Path(td)
+        subprocess.run(["git", "clone", url, str(td_path)], check=True)
+        brick_dir = _find_brick_dir(td_path)
+        if brick_dir is None:
+            brick_dir, _ = _auto_detect_manifest(td_path)
+        print("Plan (from git clone):")
+        cmd_plan(str(brick_dir))
+        cmd_apply(str(brick_dir), assume_yes=True)
+
+
+def _cmd_diff(path: str) -> None:
+    manifest = read_manifest(Path(path))
+    plan = plan_integration(manifest)
+    print("Plan:")
+    print(json.dumps(plan, indent=2))
+    previews: List[str] = []
+    if plan["requirements"]:
+        existing = []
+        if REQUIREMENTS_PATH.exists():
+            existing = [l.strip() for l in REQUIREMENTS_PATH.read_text(encoding="utf-8").splitlines()]
+        adds = [pkg["name"] for pkg in plan["requirements"] if not any(line.startswith(pkg["name"]) for line in existing)]
+        if adds:
+            previews.append("requirements.txt additions:\n" + "\n".join(["+ " + a for a in adds]))
+    if plan["settings"]["installed_apps"]:
+        previews.append("settings.py INSTALLED_APPS additions:\n" + "\n".join(["+ " + a for a in plan["settings"]["installed_apps"]]))
+    if plan["settings"]["middleware"]:
+        previews.append("settings.py MIDDLEWARE additions:\n" + "\n".join(["+ " + m for m in plan["settings"]["middleware"]]))
+    if plan["urls"]:
+        url_lines = [f'+ path("{u["mount"]}", include("{u["include"]}"))' for u in plan["urls"]]
+        previews.append("config/urls.py additions:\n" + "\n".join(url_lines))
+    if previews:
+        print("\nDiff preview (planned additions):\n" + "\n\n".join(previews))
+    else:
+        print("No changes planned.")
+
 def main() -> None:
     parser = argparse.ArgumentParser("lego bricks")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -241,6 +333,12 @@ def main() -> None:
     p_apply.add_argument("path")
     p_apply.add_argument("--yes", action="store_true", dest="assume_yes")
 
+    p_install = sub.add_parser("install")
+    p_install.add_argument("repo", help="Git URL or owner/repo")
+
+    p_diff = sub.add_parser("diff")
+    p_diff.add_argument("path")
+
     args = parser.parse_args()
     if args.cmd == "plan":
         cmd_plan(args.path)
@@ -248,6 +346,10 @@ def main() -> None:
         cmd_list()
     elif args.cmd == "apply":
         cmd_apply(args.path, args.assume_yes)
+    elif args.cmd == "install":
+        _cmd_install_git(args.repo)
+    elif args.cmd == "diff":
+        _cmd_diff(args.path)
 
 
 if __name__ == "__main__":

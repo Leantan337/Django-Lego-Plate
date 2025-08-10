@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" fill="none" stroke="#0f172a" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Simple two-brick outline -->
+  <rect x="10" y="56" width="64" height="46" rx="6"/>
+  <circle cx="26" cy="56" r="6" fill="none"/>
+  <circle cx="46" cy="56" r="6" fill="none"/>
+
+  <rect x="54" y="26" width="64" height="46" rx="6"/>
+  <circle cx="70" cy="26" r="6" fill="none"/>
+  <circle cx="90" cy="26" r="6" fill="none"/>
+  <circle cx="110" cy="26" r="6" fill="none"/>
+</svg>
+
+

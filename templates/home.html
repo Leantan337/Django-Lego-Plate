@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Django Lego Plate — Home{% endblock %}
+{% block nav_home %}active{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1 class="title">Build Django backends like Lego</h1>
+    <p class="subtitle">Snap in reusable bricks. Idempotent, fast, production-aware.</p>
+    <div style="margin-top:16px;display:flex;gap:12px">
+      <a class="btn" href="/api/docs/">Open API Docs</a>
+      <a class="btn" style="background:var(--primary)" href="/bricks/">Explore Bricks</a>
+    </div>
+    <div style="margin-top:24px" class="muted">{{ stats.num_bricks }} bricks integrated · {{ stats.num_features }} features active</div>
+  </div>
+  <div>
+    <div class="card">
+      <div class="studs"><div class="stud"></div><div class="stud"></div><div class="stud"></div></div>
+      <div class="grid cols-3">
+        <div class="brick">API</div>
+        <div class="brick">Auth</div>
+        <div class="brick">CORS</div>
+        <div class="brick">Docs</div>
+        <div class="brick">Static</div>
+        <div class="brick">Blog</div>
+      </div>
+    </div>
+  </div>
+  </section>
+{% endblock %}
+
+

@@ -1,0 +1,9 @@
+[
+  {"name": "blog", "category": "API", "status": "Installed", "description": "Simple blog app"},
+  {"name": "allauth", "category": "Auth", "status": "Installed", "description": "Accounts and auth"},
+  {"name": "celery", "category": "Tasks", "status": "Available", "description": "Background workers"},
+  {"name": "postgres", "category": "DB", "status": "Available", "description": "PostgreSQL database"},
+  {"name": "sentry", "category": "Observability", "status": "Available", "description": "Error monitoring"}
+]
+
+

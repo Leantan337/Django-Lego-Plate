@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}System Status{% endblock %}
+{% block content %}
+<h2 style="margin:8px 0 16px">System Health</h2>
+<div class="grid">
+  {% for c in checks %}
+  <div class="card">
+    <strong>{{ c.name }}</strong>
+    <div class="muted">{{ c.url }}</div>
+    <div style="margin-top:8px;color:{% if c.ok %}#10b981{% else %}#ef4444{% endif %}">{% if c.ok %}OK{% else %}Error{% endif %}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+

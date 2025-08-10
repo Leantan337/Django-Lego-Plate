@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Bricks Catalog{% endblock %}
+{% block nav_bricks %}active{% endblock %}
+{% block content %}
+<h2 style="margin:8px 0 16px">Bricks Catalog</h2>
+<div class="grid cols-3">
+  {% for b in available %}
+  <div class="card">
+    <div class="studs"><div class="stud"></div><div class="stud"></div><div class="stud"></div></div>
+    <h3 style="margin:0 0 8px">{{ b.name|title }}</h3>
+    <div class="muted" style="margin-bottom:8px">Category: {{ b.category }} · Status: {{ b.status }}</div>
+    <p class="muted">{{ b.description }}</p>
+    {% if b.status == 'Installed' %}
+      <a class="btn" style="background:var(--api)" href="/api/docs/">View</a>
+    {% else %}
+      <a class="btn" style="background:var(--accent)" href="#">Install</a>
+    {% endif %}
+  </div>
+  {% endfor %}
+  </div>
+{% endblock %}
+
+

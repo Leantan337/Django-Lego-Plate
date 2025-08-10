@@ -1,16 +1,26 @@
-<!DOCTYPE html>
-<html>
-  <head><title>Blog</title></head>
-  <body>
-    <h1>Blog</h1>
-    <ul>
-      {% for post in posts %}
-      <li><a href="/{{ post.slug }}/">{{ post.title }}</a></li>
-      {% empty %}
-      <li>No posts yet.</li>
-      {% endfor %}
-    </ul>
-  </body>
-  </html>
+{% extends "base.html" %}
+{% block title %}Blog{% endblock %}
+{% block nav_blog %}active{% endblock %}
+{% block content %}
+<section class="hero" style="grid-template-columns:1fr; padding-top:24px">
+  <div>
+    <h1 class="title" style="font-size:32px">Latest posts</h1>
+    <p class="subtitle">Thoughts on Django and building with bricks.</p>
+  </div>
+</section>
+
+<div class="grid cols-3">
+  {% for post in posts %}
+  <div class="card">
+    <h3 style="margin:0 0 8px"><a href="/{{ post.slug }}/">{{ post.title }}</a></h3>
+    <div class="muted">{{ post.created_at|date:"Y-m-d H:i" }}</div>
+    <p class="muted">{{ post.content|truncatechars:160 }}</p>
+    <div style="margin-top:8px"><a class="btn" style="background:var(--primary)" href="/{{ post.slug }}/">Read</a></div>
+  </div>
+  {% empty %}
+  <div class="card muted">No posts yet.</div>
+  {% endfor %}
+</div>
+{% endblock %}
 
 

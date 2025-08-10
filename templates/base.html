@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}Django Lego Plate{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+      :root { --primary:#2563eb; --api:#059669; --db:#7c3aed; --accent:#ea580c; --bg:#0b0f19; --fg:#f5f7fb; --muted:#a3acc2; }
+      *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--fg)}
+      a{color:var(--primary);text-decoration:none} a:hover{text-decoration:underline}
+      .container{max-width:1100px;margin:0 auto;padding:24px}
+      header{display:flex;gap:16px;align-items:center;justify-content:space-between;padding:16px 0}
+      nav a{margin-right:16px;color:var(--fg)} nav a.active{color:var(--accent);font-weight:600}
+      .hero{padding:48px 0;display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:center}
+      .title{font-size:40px;font-weight:800;line-height:1.1;margin:0 0 12px}
+      .subtitle{color:var(--muted);font-size:18px}
+      .btn{display:inline-block;background:var(--accent);color:white;padding:10px 16px;border-radius:8px;font-weight:600}
+      .grid{display:grid;gap:16px}
+      .grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+      .card{background:#101626;border:1px solid #1b2440;border-radius:12px;padding:16px}
+      .studs{display:flex;gap:8px;margin-bottom:8px}
+      .stud{width:16px;height:16px;border-radius:50%;background:#162040;border:1px solid #203055;box-shadow:0 2px 0 #0a0f1f}
+      .brick{background:#13203a;border:1px solid #1d2c4f;border-radius:12px;padding:12px;box-shadow:0 6px 16px rgba(0,0,0,.2)}
+      .muted{color:var(--muted)}
+      .logo{width:48px;height:48px;filter:invert(1) brightness(2);}
+      @media (max-width:900px){.hero{grid-template-columns:1fr}}
+    </style>
+    {% block head %}{% endblock %}
+  </head>
+  <body class="h-full">
+    <div class="container">
+      <header>
+        <div style="display:flex;align-items:center;gap:10px">
+          <img src="/static/img/logo.png" alt="Lego Plate Logo" class="logo"/>
+          <strong>Django Lego Plate</strong>
+        </div>
+        <nav>
+          <a href="/" class="{% block nav_home %}{% endblock %}">Home</a>
+          <a href="/bricks/" class="{% block nav_bricks %}{% endblock %}">Bricks</a>
+          <a href="/blog/" class="{% block nav_blog %}{% endblock %}">Blog</a>
+          <a href="/api/docs/">API Docs</a>
+          <a href="/admin/">Admin</a>
+        </nav>
+      </header>
+      {% block content %}{% endblock %}
+      <footer class="muted" style="margin-top:40px">
+        Built with love and bricks.
+      </footer>
+    </div>
+  </body>
+  </html>
+
+

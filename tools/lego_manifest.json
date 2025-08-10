@@ -132,6 +132,28 @@
       "source": "bricks\\blog",
       "timestamp": "2025-08-10T16:43:16.803045Z",
       "actions": []
+    },
+    {
+      "brick": "ui-core",
+      "source": "internal",
+      "timestamp": "2025-08-10T00:00:00Z",
+      "actions": [
+        {"file": "config/settings.py", "type": "update"},
+        {"file": "config/views.py", "type": "create"},
+        {"file": "config/urls.py", "type": "update"},
+        {"file": "templates/base.html", "type": "create"},
+        {"file": "templates/home.html", "type": "create"},
+        {"file": "templates/bricks.html", "type": "create"},
+        {"file": "templates/system.html", "type": "create"},
+        {"file": "templates/demo.html", "type": "create"},
+        {"file": "tools/available_bricks.json", "type": "create"}
+      ]
+    },
+    {
+      "brick": "blog",
+      "source": "bricks\\blog",
+      "timestamp": "2025-08-10T17:08:01.947996Z",
+      "actions": []
     }
   ]
 }
