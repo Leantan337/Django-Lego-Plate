@@ -12,7 +12,10 @@ urlpatterns = [
     path("accounts/", include("allauth.urls")),
     # Redirect legacy profile URL to docs
     path("accounts/profile/", RedirectView.as_view(url="/api/docs/", permanent=False)),
-    # OpenAPI schema and docs
+    # Convenience redirect to blog home
+    path("", RedirectView.as_view(url="/blog/", permanent=False)),
+    path("blog/", include("blog.urls")),
+# OpenAPI schema and docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
     path("api/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),

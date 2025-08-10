@@ -5,15 +5,42 @@
       "source": "internal",
       "timestamp": "2025-08-10T00:00:00Z",
       "actions": [
-        {"file": "requirements.txt", "type": "create"},
-        {"file": ".gitignore", "type": "create"},
-        {"file": ".env.example", "type": "create"},
-        {"file": "manage.py", "type": "create"},
-        {"file": "config/__init__.py", "type": "create"},
-        {"file": "config/settings.py", "type": "create"},
-        {"file": "config/urls.py", "type": "create"},
-        {"file": "config/asgi.py", "type": "create"},
-        {"file": "config/wsgi.py", "type": "create"}
+        {
+          "file": "requirements.txt",
+          "type": "create"
+        },
+        {
+          "file": ".gitignore",
+          "type": "create"
+        },
+        {
+          "file": ".env.example",
+          "type": "create"
+        },
+        {
+          "file": "manage.py",
+          "type": "create"
+        },
+        {
+          "file": "config/__init__.py",
+          "type": "create"
+        },
+        {
+          "file": "config/settings.py",
+          "type": "create"
+        },
+        {
+          "file": "config/urls.py",
+          "type": "create"
+        },
+        {
+          "file": "config/asgi.py",
+          "type": "create"
+        },
+        {
+          "file": "config/wsgi.py",
+          "type": "create"
+        }
       ]
     },
     {
@@ -21,11 +48,26 @@
       "source": "internal",
       "timestamp": "2025-08-10T00:00:00Z",
       "actions": [
-        {"file": "requirements.txt", "type": "update"},
-        {"file": "config/settings.py", "type": "update"},
-        {"file": "config/urls.py", "type": "update"},
-        {"file": "pytest.ini", "type": "create"},
-        {"file": "tests/test_smoke.py", "type": "create"}
+        {
+          "file": "requirements.txt",
+          "type": "update"
+        },
+        {
+          "file": "config/settings.py",
+          "type": "update"
+        },
+        {
+          "file": "config/urls.py",
+          "type": "update"
+        },
+        {
+          "file": "pytest.ini",
+          "type": "create"
+        },
+        {
+          "file": "tests/test_smoke.py",
+          "type": "create"
+        }
       ]
     },
     {
@@ -33,12 +75,63 @@
       "source": "internal",
       "timestamp": "2025-08-10T00:00:00Z",
       "actions": [
-        {"file": "requirements.txt", "type": "update"},
-        {"file": "config/settings.py", "type": "update"},
-        {"file": "config/urls.py", "type": "update"}
+        {
+          "file": "requirements.txt",
+          "type": "update"
+        },
+        {
+          "file": "config/settings.py",
+          "type": "update"
+        },
+        {
+          "file": "config/urls.py",
+          "type": "update"
+        }
       ]
+    },
+    {
+      "brick": "cli-snapin",
+      "source": "internal",
+      "timestamp": "2025-08-10T00:00:00Z",
+      "actions": [
+        {
+          "file": "requirements.txt",
+          "type": "update"
+        },
+        {
+          "file": "tools/bricks.py",
+          "type": "create"
+        }
+      ]
+    },
+    {
+      "brick": "blog",
+      "source": "bricks\\blog",
+      "timestamp": "2025-08-10T16:41:16.306617Z",
+      "actions": [
+        {
+          "file": "requirements.txt",
+          "type": "add:markdown>=3.4"
+        },
+        {
+          "file": "blog",
+          "type": "create_dir"
+        },
+        {
+          "file": "config/settings.py",
+          "type": "add:INSTALLED_APPS:blog"
+        },
+        {
+          "file": "config/urls.py",
+          "type": "url:blog/->blog.urls"
+        }
+      ]
+    },
+    {
+      "brick": "blog",
+      "source": "bricks\\blog",
+      "timestamp": "2025-08-10T16:43:16.803045Z",
+      "actions": []
     }
   ]
 }
-
-

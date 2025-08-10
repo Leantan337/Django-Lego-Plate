@@ -1,0 +1,21 @@
+name: blog
+version: 0.1.0
+description: Simple blog app with posts and basic views
+
+dependencies:
+  - markdown>=3.4
+
+django:
+  installed_apps:
+    - blog
+  urls:
+    - include: blog.urls
+      mount: /blog/
+  settings:
+    BLOG_POSTS_PER_PAGE: 10
+  templates: []
+  static: []
+  migrations: true
+admin: true
+
+

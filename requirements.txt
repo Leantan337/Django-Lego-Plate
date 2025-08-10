@@ -7,4 +7,6 @@ pytest>=8
 pytest-django>=4.8
 pytest-cov>=5
 django-allauth>=65
+PyYAML>=6
 
+markdown>=3.4
