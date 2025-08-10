@@ -2,6 +2,19 @@
 
 Modular Django project assembler that snaps prebuilt, reusable Django apps (“bricks”) onto a clean base project (“plate”). Designed for hackathon speed and production-aware defaults. Instead of hand-writing boilerplate, it integrates and wires settings, URLs, dependencies, environment variables, and services automatically.
 
+## In plain English
+- This tool helps you make a working Django backend fast, without the boring setup.
+- Imagine your project is a base plate and features are Lego bricks.
+- You pick the bricks you want (Login/Auth, API, Background Tasks, etc.). The tool snaps them in for you.
+- It updates settings, URLs, and installs packages automatically so you don’t have to.
+- You can bring bricks from your computer (a folder) or from any repo/package.
+- It’s safe to run more than once, and you can remove bricks later if you change your mind.
+
+## Who is this for?
+- Hackathons and quick prototypes.
+- Teams who repeat the same Django setup again and again.
+- Beginners who want a working project in minutes.
+
 ## Why
 - **Integration over generation**: Safely modifies `settings.py`, `urls.py`, `requirements.txt`, `.env(.example)`, Docker/Celery configs, and more.
 - **Reusable bricks**: Import from a local folder, git repository, or pip package.
