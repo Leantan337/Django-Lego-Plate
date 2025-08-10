@@ -1,122 +1,121 @@
 # Django Lego Plate
 
-Modular Django project assembler that snaps prebuilt, reusable Django apps (“bricks”) onto a clean base project (“plate”). Designed for hackathon speed and production-aware defaults. Instead of hand-writing boilerplate, it integrates and wires settings, URLs, dependencies, environment variables, and services automatically.
+Build Django backends like Lego — fast, reusable, and production-ready.
 
-## In plain English
-- This tool helps you make a working Django backend fast, without the boring setup.
-- Imagine your project is a base plate and features are Lego bricks.
-- You pick the bricks you want (Login/Auth, API, Background Tasks, etc.). The tool snaps them in for you.
-- It updates settings, URLs, and installs packages automatically so you don’t have to.
-- You can bring bricks from your computer (a folder) or from any repo/package.
-- It’s safe to run more than once, and you can remove bricks later if you change your mind.
+## What is this?
 
-## Who is this for?
-- Hackathons and quick prototypes.
-- Teams who repeat the same Django setup again and again.
-- Beginners who want a working project in minutes.
+Django Lego Plate helps you create a working Django backend in minutes — without the boring setup.
+Think of it like building with Lego:
 
-## Why
-- **Integration over generation**: Safely modifies `settings.py`, `urls.py`, `requirements.txt`, `.env(.example)`, Docker/Celery configs, and more.
-- **Reusable bricks**: Import from a local folder, git repository, or pip package.
-- **Idempotent edits**: Dry-run plans, minimal diffs, and recorded changes for uninstall.
-- **Hackathon-fast**: Go from idea to running backend in minutes, not days.
+- The base plate = your Django project.
+- The bricks = prebuilt features (Login/Auth, API, Background Tasks, etc.).
 
-## Features
-- **Brick import from anywhere**: Local path, git URL, or pip package.
-- **Auto-discovery with manifest-first**: Reads `brick.yaml/json` if present; falls back to heuristics (detect Django apps, URLs, deps, settings).
-- **Safe integration**: Adds `INSTALLED_APPS`, URLs, middleware, settings, env keys, migrations, Celery tasks, admin, templates/static.
-- **Dry-run and verification**: Shows a plan/diff before applying; verifies with install/migrate/run commands.
-- **Uninstall-ready**: Records edits in `lego_manifest.json` so you can revert a brick later.
-- **Sane defaults**: SQLite, DRF, CORS, WhiteNoise, DRF Spectacular, and pytest recommended as a baseline.
+You choose the bricks you want, and the tool snaps them into your project automatically. It updates settings, URLs, installs dependencies, and sets up configs so you don’t have to.
 
-## Quick Start (with Cursor + GPT-5)
-1) Open this repo in Cursor.
-2) Use the kickoff prompt in the editor/chat:
+You can add bricks from:
 
-```text
-Assemble a Django project with importable bricks.
+- Your computer (a folder)
+- Any GitHub/Git repo
+- Any Python package
 
-Project:
-- Name: config
-- Database: SQLite
-- Docker: no
+You can safely run it multiple times or remove bricks later.
 
-Import these bricks (sources can be local path, git URL, or pip package):
-- drf (builtin)
-- cors (builtin)
-- spectacular (builtin)
-- whitenoise (builtin)
-- pytest (builtin)
-- <your-local-brick-path-or-git-url-1>
-- (optional) django-allauth
-- (optional) celery+redis
-- (optional) postgres
-- (optional) sentry
+## Who is it for?
 
-Deliver:
-- Edits to requirements/settings/urls/env and any new files.
-- Dry-run plan first; then final edits.
-- Commands to install, migrate, run.
-- Verification steps.
-```
+- Hackathons & quick prototypes – Get a backend running in minutes.
+- Teams – Stop repeating the same Django setup over and over.
+- Beginners – Skip the setup pain, start coding features right away.
 
-3) After assembly, run the suggested commands (example):
+## Why use it?
+
+- Integration over generation – Modifies your existing project instead of overwriting it.
+- Reusable bricks – Share and reuse features across projects.
+- Safe changes – See a preview before applying edits.
+- Uninstall ready – Remove a brick anytime, with tracked changes.
+
+## What it can do
+
+- Add bricks from:
+  - Local folder
+  - Git repository
+  - Pip package
+- Automatically update:
+  - INSTALLED_APPS
+  - urls.py
+  - Middleware
+  - settings.py
+  - .env / .env.example
+  - requirements.txt
+  - Celery/Docker configs
+- Built-in defaults:
+  - SQLite, Django REST Framework, CORS, WhiteNoise, DRF Spectacular, pytest
+
+## Starter Brick Catalog
+
+| Feature                | What it adds                  |
+| ---------------------- | ----------------------------- |
+| REST API (DRF)         | APIs with browsable interface |
+| Auth (allauth)         | Login, signup, social auth    |
+| CORS                   | Cross-origin requests         |
+| WhiteNoise             | Static file serving           |
+| API Docs (Spectacular) | OpenAPI & Swagger docs        |
+| Background Tasks       | Celery + Redis                |
+| PostgreSQL             | Production DB setup           |
+| Sentry                 | Error tracking                |
+| Testing                | pytest, pytest-django         |
+| Docker                 | Container setup               |
+
+## Example Setup
 
 ```bash
+# 1. Create a project
+django-admin startproject config
+
+# 2. Pick your bricks (via CLI or Web UI)
+# CLI (examples):
+python tools/bricks.py plan bricks/blog
+python tools/bricks.py apply bricks/blog --yes
+python tools/bricks.py install owner/repo          # GitHub shorthand
+python tools/bricks.py install https://github.com/owner/repo.git
+
+# 3. Install and run
 python -m venv .venv && .venv/Scripts/activate  # Windows PowerShell: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver
-# If Celery added:
+```
+
+If Celery was added:
+
+```bash
 celery -A config worker -l info
 ```
 
-## Brick Catalog (starter set)
-- **REST API (DRF)**: Adds `djangorestframework`, `'rest_framework'` to `INSTALLED_APPS`, base `REST_FRAMEWORK` settings, and browsable API routes under `api/`.
-- **Auth (django-allauth)**: Adds packages, `SITE_ID`, auth backends, and `allauth` URLs.
-- **Background tasks (Celery + Redis)**: Adds `celery.py`, broker config from env, and sample task wiring.
-- **PostgreSQL**: Adds `psycopg[binary]` and env-driven `DATABASES` settings.
-- **CORS**: Adds `django-cors-headers` with middleware and default origins.
-- **Static files (WhiteNoise)**: Adds middleware and storage configuration.
-- **OpenAPI/Docs (DRF Spectacular)**: Adds schema generation and docs routes.
-- **Error monitoring (Sentry)**: Initializes Sentry with DSN from env.
-- **Testing (pytest-django)**: Adds `pytest`, `pytest-django`, and a minimal config.
-- **Containerization (Docker)**: Adds `Dockerfile` and optional `docker-compose.yml`.
+## Uninstalling a Brick
 
-## Importing Bricks
-- **Local folder**: Select or drag the brick folder. The assistant will read a manifest if available or infer integration.
-- **Git repo**: Provide a URL. The assistant stages it under `bricks/<name>/` (or installs via pip VCS URL) and integrates.
-- **Pip package**: Provide the package name or VCS URL. Dependencies are added to `requirements.txt` and integration proceeds.
+Recorded edits live in `tools/lego_manifest.json`.
 
-## Uninstalling Bricks
-- The assistant records per-brick edits in `lego_manifest.json`.
-- Request an uninstall to reverse edits (requirements, settings, urls, env). Database migration rollback is opt-in.
-
-## Project Structure (after assembly)
+```bash
+# (coming soon) CLI uninstall using the ledger
+lego remove drf
 ```
-config/                 # Django project (example name)
-  settings.py
-  urls.py
-  __init__.py
-  celery.py             # if Celery added
-apps/                   # optional app namespace
-bricks/<name>/          # staged bricks (git/local)
+
+## Project Structure (after setup)
+
+```
+config/              # Main Django project
+bricks/              # Downloaded/staged bricks
 requirements.txt
 .env.example
-pytest.ini              # if pytest added
-lego_manifest.json      # recorded edits for uninstall
+pytest.ini           # if pytest added
+tools/lego_manifest.json   # Tracks all brick edits
 ```
 
-## Documentation
-- Architecture: see `docs/ARCHITECTURE.md`
-
 ## Roadmap
-- Manifest schema v1 and validation
-- Rich uninstall/rollback including migrations
-- GUI for brick selection and conflict resolution
-- Remote catalog with verified bricks
 
-## License
-TBD. Add a `LICENSE` file (MIT recommended for templates).
+- Rich uninstall with migration rollback
+- GUI for brick selection
+- Remote catalog of verified bricks
+
 
 
