@@ -6,6 +6,7 @@ from typing import Any, Dict, List, Tuple
 import subprocess
 import datetime
 import shutil
+import sys
 
 import yaml
 
@@ -214,8 +215,8 @@ def cmd_apply(path: str, assume_yes: bool) -> None:
         actions.append({"file": ".env.example", "type": ea})
 
     # install and migrate
-    subprocess.run(["pip", "install", "-r", str(REQUIREMENTS_PATH), "--disable-pip-version-check", "--no-input"], check=True)
-    subprocess.run(["python", str(WORKSPACE_ROOT / "manage.py"), "migrate", "--noinput"], check=True)
+    subprocess.run([sys.executable, "-m", "pip", "install", "-r", str(REQUIREMENTS_PATH), "--disable-pip-version-check", "--no-input", "--break-system-packages"], check=True)
+    subprocess.run([sys.executable, str(WORKSPACE_ROOT / "manage.py"), "migrate", "--noinput"], check=True)
 
     # record ledger
     ledger = load_ledger()
