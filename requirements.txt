@@ -1,0 +1,9 @@
+Django>=5.0,<6.0
+djangorestframework>=3.15
+django-cors-headers>=4.4
+drf-spectacular>=0.27
+whitenoise>=6.6
+pytest>=8
+pytest-django>=4.8
+pytest-cov>=5
+
